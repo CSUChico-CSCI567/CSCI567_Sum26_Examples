@@ -2,7 +2,7 @@ stages:
   - deploy
 
 create-pages:
-  image: gmeligio/flutter-web:latest
+  image: gmeligio/flutter-web
   stage: deploy
   before_script:
     - cd counterexample
