@@ -1,0 +1,17 @@
+stages:
+  - deploy
+
+create-pages:
+  image: instrumentisto/flutter:latest
+  stage: deploy
+  before_script:
+    - cd counterexample
+    - flutter pub get
+  script:
+    - flutter build web
+    - cp -r build/web ../public
+  pages:
+    publish: public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "webDeploy"
+  environment: production
