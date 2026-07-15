@@ -1,3 +1,4 @@
+import 'package:counterexample/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -31,13 +32,13 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -49,45 +50,33 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final CounterStorage storage = CounterStorage();
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  SharedPreferences? prefs;
+  // late Future<int> _counterFuture;
   int? _counter;
 
   void _incrementCounter() async {
-    int counter = 0;
-    if (_counter != null) {
-      counter = _counter!;
-      counter++;
-      prefs = await SharedPreferences.getInstance();
-      prefs!.setInt("counter", counter);
-    }
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       if (_counter != null) {
-        _counter = counter;
+        _counter = _counter! + 1;
+        widget.storage.writeCounter(_counter!);
       }
     });
-    setState(() {});
-  }
-
-  void setCount() async {
-    prefs = await SharedPreferences.getInstance();
-    _counter = prefs!.getInt("counter") ?? 0;
-    setState(() {});
   }
 
   void initState() {
     super.initState();
-    setCount();
+    // _counterFuture = //some future definition;
+    widget.storage.readCounter().then((int value) {
+      setState(() {
+        _counter = value;
+      });
+    });
   }
 
   @override
