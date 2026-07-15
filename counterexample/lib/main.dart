@@ -57,26 +57,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // late Future<int> _counterFuture;
-  int? _counter;
+  late Future<int> _counterFuture;
 
   void _incrementCounter() async {
+    int counter = await _counterFuture;
+    counter++;
+    widget.storage.writeCounter(counter);
     setState(() {
-      if (_counter != null) {
-        _counter = _counter! + 1;
-        widget.storage.writeCounter(_counter!);
-      }
+      _counterFuture = Future.value(counter);
     });
   }
 
   void initState() {
     super.initState();
-    // _counterFuture = //some future definition;
-    widget.storage.readCounter().then((int value) {
-      setState(() {
-        _counter = value;
-      });
-    });
+    _counterFuture = widget.storage.readCounter();
   }
 
   @override
@@ -117,12 +111,21 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: .center,
           children: [
             const Text('You have pushed the button this many times:'),
-            _counter == null
-                ? CircularProgressIndicator()
-                : Text(
-                    '$_counter',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
+            FutureBuilder<int>(
+              future: _counterFuture,
+              builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error}");
+                }
+                return Text(
+                  '${snapshot.data}',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              },
+            ),
           ],
         ),
       ),
