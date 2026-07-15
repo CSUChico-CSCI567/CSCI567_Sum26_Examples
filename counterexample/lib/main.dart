@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -54,18 +55,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  SharedPreferences? prefs;
+  int? _counter;
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
+    int counter = 0;
+    if (_counter != null) {
+      counter = _counter!;
+      counter++;
+      prefs = await SharedPreferences.getInstance();
+      prefs!.setInt("counter", counter);
+    }
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      if (_counter != null) {
+        _counter = counter;
+      }
     });
     setState(() {});
+  }
+
+  void setCount() async {
+    prefs = await SharedPreferences.getInstance();
+    _counter = prefs!.getInt("counter") ?? 0;
+    setState(() {});
+  }
+
+  void initState() {
+    super.initState();
+    setCount();
   }
 
   @override
@@ -106,10 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: .center,
           children: [
             const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            _counter == null
+                ? CircularProgressIndicator()
+                : Text(
+                    '$_counter',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
           ],
         ),
       ),
