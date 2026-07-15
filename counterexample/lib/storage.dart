@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,7 +13,7 @@ class CounterStorage {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    return File('$path/counter.txt');
+    return File('$path/counter.json');
   }
 
   Future<int> readCounter() async {
@@ -20,7 +21,8 @@ class CounterStorage {
       final file = await _localFile;
       //Read the file
       String contents = await file.readAsString();
-      return int.parse(contents);
+      Map<String, dynamic> counter = json.decode(contents);
+      return counter['counter'] as int;
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -33,7 +35,8 @@ class CounterStorage {
   Future<void> writeCounter(int counter) async {
     try {
       final file = await _localFile;
-      await file.writeAsString('$counter');
+      String jsonCounter = json.encode({'counter': counter});
+      await file.writeAsString(jsonCounter);
     } catch (e) {
       if (kDebugMode) {
         print(e);
