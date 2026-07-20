@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -24,8 +26,16 @@ class CountObject {
 
 class CounterStorage {
   late Database _db;
+  final Completer<void> _dataCompleter = Completer<void>();
 
-  CounterStorage();
+  void initDB() async {
+    await open("counter.db");
+    _dataCompleter.complete(); // Signals that the variable is ready
+  }
+
+  CounterStorage() {
+    initDB();
+  }
 
   Future open(String path) async {
     _db = await openDatabase(
@@ -76,9 +86,8 @@ create table $tableCount (
 
   Future<int> readCounter() async {
     try {
-      await open("counter.db");
+      await _dataCompleter.future; // Code pauses here until defined
       CountObject co = await getCount(1);
-      await close();
       return co.count;
     } catch (e) {
       if (kDebugMode) {
@@ -90,12 +99,11 @@ create table $tableCount (
 
   Future<void> writeCounter(int counter) async {
     try {
-      await open("counter.db");
+      await _dataCompleter.future; // Code pauses here until defined
       CountObject co = CountObject();
       co.count = counter;
       co.id = 1;
       await update(co);
-      await close();
     } catch (e) {
       if (kDebugMode) {
         print(e);
