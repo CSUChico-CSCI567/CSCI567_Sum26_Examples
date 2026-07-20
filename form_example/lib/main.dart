@@ -60,6 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Processing Data")));
       setState(() {
         displayText = _myController.text;
       });
