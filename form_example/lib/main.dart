@@ -54,13 +54,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _myController = TextEditingController();
+  late TextEditingController _myController;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String displayText = '';
 
-  void _update() {
-    setState(() {
-      displayText = _myController.text;
-    });
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        displayText = _myController.text;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _myController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _myController.dispose();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  String? _validateInput(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter some text";
+    }
+    if (value.contains("@")) {
+      return "Don't use @ symbol";
+    }
+    if (value.contains(" ")) {
+      return "No spaces allowed";
+    }
+    return null;
   }
 
   @override
@@ -100,22 +130,33 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            TextField(
-              controller: _myController,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    _myController.clear();
-                  },
-                  icon: const Icon(Icons.clear),
-                ),
-                border: OutlineInputBorder(),
-                labelText: "Enter some text",
-                hintText: "hint text",
-                filled: true,
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _myController,
+                    validator: _validateInput,
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          _myController.clear();
+                        },
+                        icon: const Icon(Icons.clear),
+                      ),
+                      border: OutlineInputBorder(),
+                      labelText: "Enter some text",
+                      hintText: "hint text",
+                      filled: true,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _submit,
+                    child: const Text("Submit"),
+                  ),
+                ],
               ),
             ),
-            ElevatedButton(onPressed: _update, child: const Text("Update")),
             Text(
               displayText,
               style: Theme.of(context).textTheme.headlineMedium,
