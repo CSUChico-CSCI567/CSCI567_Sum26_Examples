@@ -9,6 +9,7 @@ class CounterStorage {
 
   Future<int> readCounter() async {
     try {
+      //https://stackoverflow.com/questions/77826007/using-a-non-default-firestore-database-in-a-flutter-app
       FirebaseFirestore firestore = FirebaseFirestore.instanceFor(
         app: Firebase.app(),
         databaseId: 'summer26',
