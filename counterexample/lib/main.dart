@@ -132,23 +132,23 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _counterFuture = widget.storage.readCounter();
     _position = _determinePosition();
-    // StreamSubscription<Position> positionStream =
-    //     Geolocator.getPositionStream(
-    //       locationSettings: locationSettings,
-    //     ).listen((Position? position) {
-    //       if (kDebugMode) {
-    //         print(
-    //           position == null
-    //               ? 'Unknown'
-    //               : '${position.latitude.toString()}, ${position.longitude.toString()}',
-    //         );
-    //       }
-    //       if (position != null) {
-    //         setState(() {
-    //           _position = Future.value(position);
-    //         });
-    //       }
-    //     });
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: locationSettings,
+        ).listen((Position? position) {
+          if (kDebugMode) {
+            print(
+              position == null
+                  ? 'Unknown'
+                  : '${position.latitude.toString()}, ${position.longitude.toString()}',
+            );
+          }
+          if (position != null) {
+            setState(() {
+              _position = Future.value(position);
+            });
+          }
+        });
   }
 
   @override
