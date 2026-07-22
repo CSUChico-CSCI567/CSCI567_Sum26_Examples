@@ -7,6 +7,7 @@ import 'package:counterexample/storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -76,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
     accuracy: LocationAccuracy.high,
     distanceFilter: 100,
   );
-  final ImagePicker picker = ImagePicker();
+  // final ImagePicker picker = ImagePicker();
   late Future<File> _imageFile;
 
   /// Determine the current position of the device.
@@ -124,17 +125,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _getImage() async {
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
-    if (pickedFile != null) {
+    // final XFile? pickedFile = await picker.pickImage(
+    //   source: ImageSource.camera,
+    // );
+    // if (pickedFile != null) {
+    //   setState(() {
+    //     _imageFile = Future.value(File(pickedFile.path));
+    //   });
+    // }
+    // setState(() {
+    //   _imageFile = Future.error("No image selected");
+    // });
+
+    try {
+      final XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+      );
+
+      if (pickedFile == null) {
+        debugPrint('Camera returned no image.');
+        return;
+      }
+
+      debugPrint('Selected image: ${pickedFile.path}');
+
+      if (!mounted) return;
+
       setState(() {
         _imageFile = Future.value(File(pickedFile.path));
       });
+    } on PlatformException catch (error, stackTrace) {
+      debugPrint('Image picker platform error: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    } catch (error, stackTrace) {
+      debugPrint('Image picker error: $error');
+      debugPrintStack(stackTrace: stackTrace);
     }
-    setState(() {
-      _imageFile = Future.error("No image selected");
-    });
   }
 
   void _incrementCounter() async {
