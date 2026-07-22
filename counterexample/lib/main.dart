@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:counterexample/firebase_options.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
     accuracy: LocationAccuracy.high,
     distanceFilter: 100,
   );
+  final ImagePicker picker = ImagePicker();
+  late Future<File> _imageFile;
 
   /// Determine the current position of the device.
   ///
@@ -119,6 +123,20 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _getImage() async {
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = Future.value(File(pickedFile.path));
+      });
+    }
+    setState(() {
+      _imageFile = Future.error("No image selected");
+    });
+  }
+
   void _incrementCounter() async {
     int counter = await _counterFuture;
     counter++;
@@ -130,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initState() {
     super.initState();
+    _imageFile = Future.value(File(''));
     _counterFuture = widget.storage.readCounter();
     _position = _determinePosition();
     StreamSubscription<Position> positionStream =
@@ -188,6 +207,28 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
+            FutureBuilder(
+              future: _imageFile,
+              builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                try {
+                  if (snapshot.data != null && snapshot.data!.path.isNotEmpty) {
+                    return Image.file(snapshot.data!, width: 100, height: 100);
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print(e);
+                  }
+                }
+                return const Placeholder(
+                  fallbackHeight: 100,
+                  fallbackWidth: 100,
+                  child: SizedBox.shrink(),
+                );
+              },
+            ),
             const Text('You have pushed the button this many times:'),
             FutureBuilder<int>(
               future: _counterFuture,
@@ -241,11 +282,24 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      //https://stackoverflow.com/questions/55166999/how-to-make-two-floating-action-buttons-in-flutter
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+          SizedBox(height: 10),
+          FloatingActionButton(
+            onPressed: _getImage,
+            tooltip: 'Take Photo',
+            child: const Icon(Icons.camera),
+          ),
+        ],
       ),
+      // floatingActionButton: ,
     );
   }
 }
