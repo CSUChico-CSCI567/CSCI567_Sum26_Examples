@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
     accuracy: LocationAccuracy.high,
     distanceFilter: 100,
   );
-  // final ImagePicker picker = ImagePicker();
+  final ImagePicker picker = ImagePicker();
   late Future<File> _imageFile;
 
   /// Determine the current position of the device.
@@ -138,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // });
 
     try {
-      final XFile? pickedFile = await ImagePicker().pickImage(
+      final XFile? pickedFile = await picker.pickImage(
         source: ImageSource.camera,
       );
 
