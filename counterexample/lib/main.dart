@@ -275,11 +275,11 @@ class _MyHomePageState extends State<MyHomePage> {
               stream: FirebaseFirestore.instanceFor(
                 app: Firebase.app(),
                 databaseId: 'summer26',
-              ).collection("test").snapshots(),
+              ).collection("test").doc('count').snapshots(),
               builder:
                   (
                     BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot,
+                    AsyncSnapshot<DocumentSnapshot> snapshot,
                   ) {
                     if (snapshot.connectionState == ConnectionState.waiting ||
                         !snapshot.hasData) {
@@ -289,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       return Text("Error: ${snapshot.error}");
                     }
                     return Text(
-                      '${snapshot.data!.docs.first['count']}',
+                      '${snapshot.data!['count']}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     );
                   },
