@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:navstack/first.dart';
-import 'package:navstack/second.dart';
 
 Widget getDrawer(context) {
   return Drawer(
@@ -19,9 +17,9 @@ Widget getDrawer(context) {
           title: const Text('Page 1'),
           onTap: () {
             // Update the state of the app.
-            Navigator.pushAndRemoveUntil(
+            Navigator.pushNamedAndRemoveUntil(
               context,
-              MaterialPageRoute<void>(builder: (context) => const FirstRoute()),
+              "/",
               (Route<dynamic> route) => false,
             );
           },
@@ -30,11 +28,9 @@ Widget getDrawer(context) {
           title: const Text('Page 2'),
           onTap: () {
             // Update the state of the app.
-            Navigator.pushAndRemoveUntil(
+            Navigator.pushNamedAndRemoveUntil(
               context,
-              MaterialPageRoute<void>(
-                builder: (context) => const SecondRoute(),
-              ),
+              "/second",
               (Route<dynamic> route) => route.isFirst,
             );
           },
