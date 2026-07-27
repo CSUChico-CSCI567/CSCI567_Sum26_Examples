@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:navstack/components/drawer.dart';
 
 class FirstRoute extends StatelessWidget {
@@ -14,7 +15,7 @@ class FirstRoute extends StatelessWidget {
           child: const Text('Open route'),
           onPressed: () {
             // Navigate to second route when tapped.
-            Navigator.pushNamed(context, '/second');
+            context.go("/second");
           },
         ),
       ),
