@@ -164,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _incrementCounter() async {
-    int counter = await _counterFuture;
+    int counter = await widget.storage.readCounter();
     counter++;
     widget.storage.writeCounter(counter);
     setState(() {
@@ -176,24 +176,24 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _imageFile = Future.value(File(''));
     _counterFuture = widget.storage.readCounter();
-    _position = _determinePosition();
-    StreamSubscription<Position> positionStream =
-        Geolocator.getPositionStream(
-          locationSettings: locationSettings,
-        ).listen((Position? position) {
-          if (kDebugMode) {
-            print(
-              position == null
-                  ? 'Unknown'
-                  : '${position.latitude.toString()}, ${position.longitude.toString()}',
-            );
-          }
-          if (position != null) {
-            setState(() {
-              _position = Future.value(position);
-            });
-          }
-        });
+    // _position = _determinePosition();
+    // StreamSubscription<Position> positionStream =
+    //     Geolocator.getPositionStream(
+    //       locationSettings: locationSettings,
+    //     ).listen((Position? position) {
+    //       if (kDebugMode) {
+    //         print(
+    //           position == null
+    //               ? 'Unknown'
+    //               : '${position.latitude.toString()}, ${position.longitude.toString()}',
+    //         );
+    //       }
+    //       if (position != null) {
+    //         setState(() {
+    //           _position = Future.value(position);
+    //         });
+    //       }
+    //     });
   }
 
   @override
@@ -271,27 +271,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            FutureBuilder<Position>(
-              future: _position,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                }
-                return Text(
-                  '${snapshot.data!.latitude},${snapshot.data!.longitude}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                );
-              },
-            ),
             StreamBuilder(
-              stream: Geolocator.getPositionStream(
-                locationSettings: locationSettings,
-              ),
+              stream: FirebaseFirestore.instanceFor(
+                app: Firebase.app(),
+                databaseId: 'summer26',
+              ).collection("test").snapshots(),
               builder:
-                  (BuildContext context, AsyncSnapshot<Position> snapshot) {
+                  (
+                    BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot,
+                  ) {
                     if (snapshot.connectionState == ConnectionState.waiting ||
                         !snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -300,11 +289,45 @@ class _MyHomePageState extends State<MyHomePage> {
                       return Text("Error: ${snapshot.error}");
                     }
                     return Text(
-                      '${snapshot.data!.latitude},${snapshot.data!.longitude}',
+                      '${snapshot.data!.docs.first['count']}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     );
                   },
             ),
+            // FutureBuilder<Position>(
+            //   future: _position,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return const CircularProgressIndicator();
+            //     }
+            //     if (snapshot.hasError) {
+            //       return Text("Error: ${snapshot.error}");
+            //     }
+            //     return Text(
+            //       '${snapshot.data!.latitude},${snapshot.data!.longitude}',
+            //       style: Theme.of(context).textTheme.headlineMedium,
+            //     );
+            //   },
+            // ),
+            // StreamBuilder(
+            //   stream: Geolocator.getPositionStream(
+            //     locationSettings: locationSettings,
+            //   ),
+            //   builder:
+            //       (BuildContext context, AsyncSnapshot<Position> snapshot) {
+            //         if (snapshot.connectionState == ConnectionState.waiting ||
+            //             !snapshot.hasData) {
+            //           return const CircularProgressIndicator();
+            //         }
+            //         if (snapshot.hasError) {
+            //           return Text("Error: ${snapshot.error}");
+            //         }
+            //         return Text(
+            //           '${snapshot.data!.latitude},${snapshot.data!.longitude}',
+            //           style: Theme.of(context).textTheme.headlineMedium,
+            //         );
+            //       },
+            // ),
           ],
         ),
       ),
