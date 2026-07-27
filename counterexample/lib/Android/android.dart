@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:counterexample/Android/android.dart';
-import 'package:counterexample/firebase_options.dart';
 import 'package:counterexample/storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -12,28 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-  );
-  if (kIsWeb) {
-    runApp(MyApp(title: 'Web'));
-  } else {
-    if (Platform.isAndroid) {
-      runApp(MyAndroidApp(title: "Android"));
-    } else if (Platform.isIOS) {
-      runApp(MyApp(title: 'iOS'));
-    } else {
-      runApp(MyApp(title: "Unknown"));
-    }
-  }
-}
-
-class MyApp extends StatelessWidget {
+class MyAndroidApp extends StatelessWidget {
   final String title;
-  const MyApp({super.key, required this.title});
+  const MyAndroidApp({super.key, required this.title});
 
   // This widget is the root of your application.
   @override
@@ -268,21 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             const Text('You have pushed the button this many times:'),
-            FutureBuilder<int>(
-              future: _counterFuture,
-              builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                }
-                return Text(
-                  '${snapshot.data}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                );
-              },
-            ),
+
             StreamBuilder(
               stream: FirebaseFirestore.instanceFor(
                 app: Firebase.app(),
