@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_example/login.dart';
+import 'package:form_example/photoform.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class PhotosPage extends StatefulWidget {
@@ -35,6 +36,16 @@ class _PhotosPageState extends State<PhotosPage> {
         ],
       ),
       body: const Center(child: Text("Photos go here")),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PhotoForm()),
+          );
+        },
+        tooltip: "Add Photo",
+        child: const Icon(Icons.add_a_photo),
+      ),
     );
   }
 }
