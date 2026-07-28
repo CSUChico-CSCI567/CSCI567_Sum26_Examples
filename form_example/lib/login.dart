@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:form_example/firebase_options.dart';
+import 'package:form_example/main.dart';
+import 'package:form_example/pictures.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 const List<String> scopes = <String>[];
@@ -47,37 +49,16 @@ class _LoginPageState extends State<LoginPage> {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
       setState(() {
-        _googleUser = _googleUser;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => PhotosPage()),
+          (Route<dynamic> route) => false,
+        );
       });
+
       return userCredential;
     }
   }
-
-  // Future<UserCredential> signInWithGoogle() async {
-  //   // Trigger the auth workflow
-  //   final GoogleSignIn signIn = GoogleSignIn.instance;
-  //   await signIn.initialize()
-  //   _googleUser = await signIn.authenticate();
-  //   if (kDebugMode) {
-  //     print(_googleUser!.displayName);
-  //   }
-  //   final GoogleSignInClientAuthorization authorization = await _googleUser!
-  //       .authorizationClient
-  //       .authorizeScopes(scopes);
-
-  //   final GoogleSignInAuthentication? googleAuth =
-  //       await _googleUser?.authentication;
-  //   final OAuthCredential credential = GoogleAuthProvider.credential(
-  //     accessToken: authorization.accessToken,
-  //     idToken: googleAuth?.idToken,
-  //   );
-  //   UserCredential userCredential = await FirebaseAuth.instance
-  //       .signInWithCredential(credential);
-  //   setState(() {
-  //     _googleUser = _googleUser;
-  //   });
-  //   return userCredential;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,34 +77,18 @@ class _LoginPageState extends State<LoginPage> {
     List<Widget> widgets = [];
     if (_googleUser == null) {
       widgets.add(
-        ElevatedButton(
-          onPressed: () async {
+        GestureDetector(
+          onTap: () async {
             await signInWithGoogle();
           },
-          child: const Text("Sign in with Google"),
+          child: const Image(
+            image: AssetImage('assets/googlesignin.png'),
+            width: 200,
+          ),
         ),
       );
     } else {
-      widgets.add(
-        ListTile(
-          leading: GoogleUserCircleAvatar(identity: _googleUser!),
-          title: Text(_googleUser!.displayName ?? ""),
-          subtitle: Text(_googleUser!.email),
-        ),
-      );
-      widgets.add(Text(FirebaseAuth.instance.currentUser?.uid ?? ""));
-      widgets.add(
-        ElevatedButton(
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            await GoogleSignIn.instance.signOut();
-            setState(() {
-              _googleUser = null;
-            });
-          },
-          child: const Text("Sign Out"),
-        ),
-      );
+      widgets.add(const Text("How'd you get here?"));
     }
     return widgets;
   }
