@@ -53,10 +53,14 @@ class _PhotosPageState extends State<PhotosPage> {
 
   Widget getBody() {
     return StreamBuilder(
-      stream: FirebaseFirestore.instanceFor(
-        app: Firebase.app(),
-        databaseId: 'summer26',
-      ).collection("photos").snapshots(),
+      stream:
+          FirebaseFirestore.instanceFor(
+                app: Firebase.app(),
+                databaseId: 'summer26',
+              )
+              .collection("photos")
+              .where('user', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
