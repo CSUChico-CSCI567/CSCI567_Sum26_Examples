@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:form_example/login.dart';
 import 'package:form_example/photoform.dart';
@@ -35,7 +37,7 @@ class _PhotosPageState extends State<PhotosPage> {
           ),
         ],
       ),
-      body: const Center(child: Text("Photos go here")),
+      body: getBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -46,6 +48,46 @@ class _PhotosPageState extends State<PhotosPage> {
         tooltip: "Add Photo",
         child: const Icon(Icons.add_a_photo),
       ),
+    );
+  }
+
+  Widget getBody() {
+    return StreamBuilder(
+      stream:
+          FirebaseFirestore.instanceFor(
+                app: Firebase.app(),
+                databaseId: 'summer26',
+              )
+              .collection("photos")
+              .where('user', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        if (snapshot.hasData) {
+          return ListView(
+            children: snapshot.data!.docs.map((document) {
+              Map<String, dynamic> data =
+                  document.data() as Map<String, dynamic>;
+              return Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(data['title']),
+                    Text(data['description']),
+                    Image.network(data['imageURL'], height: 300),
+                  ],
+                ),
+              );
+            }).toList(),
+          );
+        }
+        return const CircularProgressIndicator();
+      },
     );
   }
 }

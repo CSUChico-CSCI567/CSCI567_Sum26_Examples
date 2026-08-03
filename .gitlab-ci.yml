@@ -1,11 +1,65 @@
 stages:
+  - lint
+  - test
+  - build
   - deploy
+
+flutter-lint:
+  image: gmeligio/flutter-web:3.44.6
+  stage: lint
+  before_script:
+    - cd counter_test
+    - flutter pub get
+  script:
+    - flutter analyze
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+
+flutter-test:
+  image: gmeligio/flutter-web:3.44.6
+  stage: test
+  before_script:
+    - cd counter_test
+    - flutter pub get
+  script:
+    - flutter test
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+
+
+build-android:
+  image: gmeligio/flutter-android:3.44.6
+  stage: build
+  before_script:
+    - cd counter_test
+    - flutter pub get
+  script:
+    - flutter build apk --release
+  artifacts:
+    paths:
+      - counter_test/build/app/outputs/flutter-apk/app-release.apk
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
+
+build-web:
+  image: gmeligio/flutter-web:3.44.6
+  stage: build
+  before_script:
+    - cd counter_test
+    - flutter pub get
+  script:
+    - flutter build web
+  artifacts:
+    paths:
+      - counter_test/build/web
+  rules:
+    - if: $CI_COMMIT_BRANCH != "main"
 
 create-pages:
   image: gmeligio/flutter-web:3.44.6
   stage: deploy
   before_script:
-    - cd counterexample
+    - cd counter_test
     - flutter pub get
   script:
     - flutter build web
@@ -13,5 +67,5 @@ create-pages:
   pages:
     publish: public
   rules:
-    - if: $CI_COMMIT_BRANCH == "webDeploy"
+    - if: $CI_COMMIT_BRANCH == "main"
   environment: production
